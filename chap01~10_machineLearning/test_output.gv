@@ -1,8 +1,0 @@
-// System Architecture Test
-digraph {
-	A [label="Input Data"]
-	B [label="Model Processing"]
-	C [label="Output Result"]
-	A -> B
-	B -> C
-}
