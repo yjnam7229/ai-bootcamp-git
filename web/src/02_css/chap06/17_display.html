@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>CSS display 속성</title>
+  <style>
+    /* li 요소를 가로로 나란히 배치하기 */
+    nav ul {
+      list-style: none;
+    }
+
+   /* inline-block 무력화  inline은 width, height 지정해도 영향을 받지 않음*/
+   /* line-height 수직 중앙 정렬 */
+    nav ul li {
+      display: inline-block;
+      width: 100px;
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      margin: 10px;
+      border: 1px solid #222;
+    }
+    /* text-decoration: none 링크 밑줄 제거 */
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+   <nav>
+     <ul>
+      <li><a href="#">메뉴 1</a></li>
+      <li><a href="#">메뉴 2</a></li>
+      <li><a href="#">메뉴 3</a></li>
+      <li><a href="#">메뉴 4</a></li>
+     </ul>
+   </nav>
+</body>
+</html>
