@@ -1,0 +1,50 @@
+■ MCP (Model COntext Protocol)의 기본 개념
+MCP 아키텍처의 세 가지 구성 요소
+1. 호스트(host): AI 모델이 탑재된 애플리케이션(클로드 데스크탑 앱이나, IDE인 커서, 에이전트) : 에이전트
+2. 서버(server): 에이전트에게 제공할 컨텍스트(context)를 가지고 있는 주체 : MCP 도구
+   context란 데이터(파일, DB)나 도구(기능)를 의미, “내컴퓨터의 파일을 읽어줘”, “DB에서 검색해 줘” 같은 기능을 수행하는 독립적인 프로그램
+   FastMCP 방식으로 이 서버를 간편하게 만듬
+3. 클라이언트(client): 호스트와 서버 사이를 연결하는 다리 역할, 호스트의 요청을 서버로 전달하고 서버의 응답을 다시 호스트에게 가져다줌
+   랭체인에서는 langchain-mcp-adapters 라이브러리가 이 역할을 수행
+
+랭체인 에이전트는 MCP 클라이언트 역할을 하기 때문에, 호스트와 클라이언트가 통합된 형태
+즉 에이전트가 LLM과 통신하면서 동시에 MCP 서버에 접속하는 방식
+
+MCP/랭체인
+랭체인 : 에이전트(host)내에 클라이언트가 탑재 되어 있음
+
+MCP
+에이전트(hsot)가 클라이언트에게 요청 -> 클라이언트가 서버(도구) 호출
+
+■ 외부 MCP 서버 연결하기
+   실무에서 마주할 슬랙, 깃허브, 구글 드라이브 같은 거대 서비스들의 연동 도구를 매번 직접 만드는 것은 불가능에 가까움
+   MCP 생태계에는 전 세계의 개발자들이 미리 만들어 둔 수많은 ‘표준 서버’들이 존재함
+   외부 서버 설치하기
+      설치 : $ pip install mcp-server-time
+      실행 : $ python -m mcp_server_time
+
+■ 라마인덱스(LlamaIndex) MCP : 데이터 프레임워크 
+   라마인덱스는 랭체인과 함께 LLM 어플리케이션 개발 분야의 주요 프레임워크로 자리매김하고 있음
+   모든 외부 도구와의 통신을 동일한 프로토콜로 표준화해서 도구의 이름, 설명, 입력 매개변수, 반환 형식 등을 일관된 방식으로 정의
+   JSON-RPC 2.0을 기반으로 한 구조화된 메시지 교환 방식으로 구현
+   MCP 기반 에이전트 구성, 문서 인덱싱, 검색 및 도구 연동과 같은 핵심 기능을 비교적 간단하게 실습할 수 있음
+   패키지 설치 : $ pip install llama-index llama-index-tools-mcp
+
+---------------------------------------------------------------------------
+$ python -m pip list | grep -i llama-index
+$ pip uninstall llama-index-embeddings-openai
+
+가상환경 재설정
+# 기존 .venv 폴더 삭제 후 재생성
+rm -rf .venv
+python -m venv .venv
+
+# 가상 환경 활성화(bash 상태)
+source .venv/Scripts/activate
+
+pip install -r requirements.txt
+
+python -m pip install --upgrade pip
+
+
+

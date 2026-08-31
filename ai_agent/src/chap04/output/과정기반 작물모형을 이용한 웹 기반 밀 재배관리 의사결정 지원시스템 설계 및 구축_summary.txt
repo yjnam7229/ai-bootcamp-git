@@ -1,0 +1,31 @@
+# 제목
+
+과정기반 작물모형을 이용한 웹 기반 밀 재배관리 의사결정 지원시스템 설계 및 구축
+
+## 저자의 문제 인식과 주장(15문장 이내)
+
+- 우리나라 밀 자급률은 1%대에 머물러 안정적인 생산기반 확충이 시급하다.  
+- 2022년 1인당 밀 소비량은 증가하고 있지만, 식량자급률은 여전히 매우 낮다.  
+- 정부는 밀 산업의 중장기 발전과 자급률 목표를 설정하고 정책적 토대를 마련해 왔다.  
+- 밀은 비교적 노지에서 재배되어 기상 변화와 병해충, 토양특성 등에 의해 생산량이 큰 영향을 받는다.  
+- 노지 작물은 기상환경 조절이 어려워 재배환경을 안정적으로 관리하기 어렵다.  
+- 노동력 집중과 경험 위주의 전통 방식에서 벗어나 디지털농업의 필요성이 커지고 있다.  
+- 노지재배의 생산성 향상을 위해서는 재배환경 전 영역의 시계열 데이터를 활용할 의사결정 도구가 필요하다.  
+- 과정기반 작물모형은 생리기작과 환경요인의 관계를 바탕으로 시계열 생육을 모의해 예측성을 높인다.  
+- APSIM은 오픈소스 기반의 모듈형 프레임워크로 다층적인 환경 조건에서의 시뮬레이션에 유리하다.  
+- 현재 개발된 재배관리 DSS는 주로 시설재배를 대상으로 하며 노지재배를 위한 체계적 도구가 부족하다.  
+- 따라서 본 연구는 APSIM을 이용한 웹 기반의 밀 재배관리 의사결정 지원시스템을 설계·구축하여 실시간 생산량 예측 및 의사결정을 돕고자 한다.  
+- 시스템은 과거, 현재, 미래의 기상환경을 종합적으로 평가하며, 매일 기상 데이터를 수집해 토양수분을 추정한다.  
+- 현재 상태의 재배환경과 과거 40년의 기상자료를 활용한 시나리오 분석으로 수확 시 잠재생산량의 상하위 분포를 제시한다.  
+- 웹 대시보드를 통해 사용자 친화적으로 정보를 제공하고, 관개 및 비료 처방 등의 의사결정으로 생산성 및 품질 향상을 목표로 한다.  
+- 본 연구는 노지재배 밀재배의 디지털 의사결
+정 도구의 원형을 제시하는 파일럿 연구로, 향후 모델 고도화 및 국산 밀 생산량 증대에 기여할 수 있다.
+
+## 저자 소개
+
+- 김솔희: Assistant Research Professor, Department of Smart Farm, Jeonbuk National University  
+- 석승원: Undergraduate, Department of Smart Farm, Jeonbuk National University  
+- 청리광: Ph.D. Student, Department of Rural Construction Engineering, Jeonbuk National University  
+- 장태일: Professor, Department of Rural Construction Engineering, Institute of Agricultural Science & Technology, Jeonbuk National University  
+- 김태곤: Assistant Professor, Department of Smart Farm, Jeonbuk National University  
+- Corresponding author: Taegon Kim (taegon@jbnu.ac.kr)

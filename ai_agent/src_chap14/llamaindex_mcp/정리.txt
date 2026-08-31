@@ -1,0 +1,46 @@
+Node.js® 다운로드
+
+# Chocolatey 다운로드 및 설치:
+    powershell -c "irm https://community.chocolatey.org/install.ps1|iex"
+
+# Node.js LTS 설치
+    choco install nodejs-lts --version="24.20.0"
+
+    PowerShell을 관리자 권한으로 열고 아래 명령어 중 하나를 실행합니다.
+    설치 결과 확인
+        PS C:\WINDOWS\system32> node -v
+        v24.20.0
+        PS C:\WINDOWS\system32> npm -v
+        11.19.0
+
+■ MCP 인스펙터(inspector)
+1. MCP 서버를 실행하고, 인스펙터가 해당 서버에 접근할 수 있도록 설정
+    $ : vscode bash쉘
+    $ python server.py
+
+    MCP 인스펙터는 npm으로 간단하게 설치할 수 있음 – npm 설치가 선행되어야 함
+    $npm install –g @modelcontextprotocol/inspector    : vsCode에서 실행
+
+    MCP 서버가 정상적으로 실행되면 MCP 인스펙터를 실행해 해당 서버에 연결
+        $mcp-inspector connect http://localhost:8000/mcp   : vsCode에서 에러 발생, connect 명령어는 stdio방식(HTTP)이고 지금은 mcp로 연결
+        $mcp-inspector  실행되고 MCP 서버에 연결됨 
+
+PowerShell에서 실행(vsCode에서 실행이 안되면 powershell에서 실행)
+PS C:\WINDOWS\system32> mcp-inspector
+
+
+
+
+
+----------------------------------------------------------
+설치가 제대로 안되는 경우 PowerShell 터미널 재시작
+choco install nodejs-lts -y
+
+choco install nodejs-lts --version="24.20.0" -y
+
+2. 환경 변수 적용을 위해 터미널 재시작
+설치가 완료되면 현재 열려 있는 PowerShell 창을 완전히 닫은 뒤 새로 엽니다.
+
+3. 설치 결과 확인
+node -v
+npm -v

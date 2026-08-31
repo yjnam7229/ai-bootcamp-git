@@ -1,0 +1,42 @@
+[
+    {
+        "no": 1,
+        "eng": "Which of the following descriptions of the image is incorrect?\n- (1) It shows a large indoor conference hall with many people using laptops.\n- (2) There is a large display screen in front of the stage and posters reading \"DIVE 2024.\"\n- (3) The ceiling has bright lighting and exposed metal beams.\n- (4) One wall has green wallpaper.",
+        "img": "busan_dive.jpg"
+    },
+    {
+        "no": 2,
+        "eng": "Which of the following descriptions of the image is incorrect?\n- (1) It shows a bright yellow sculpture in the foreground.\n- (2) A beige building with many windows is in the background.\n- (3) The sign on the building reads Local Stitch.\n- (4) There are people walking in the courtyard area.",
+        "img": "local_stitch.jpg"
+    },
+    {
+        "no": 3,
+        "eng": "Which of the following descriptions of the image is incorrect?\n- (1) It is a coffee shop with a long stainless steel counter.\n- (2) There is a bright yellow panel behind the counter.\n- (3) There are shelves with books and magazines along the left wall.\n- (4) The chairs in front are red.",
+        "img": "local_stitch_terrarosa.jpg"
+    },
+    {
+        "no": 4,
+        "eng": "Which of the following descriptions of the image is incorrect?\n- (1) There is a coffee shop on the first floor.\n- (2) The exterior walls of the building are made of red brick.\n- (3) Orange safety cones are installed in front of the building.\n- (4) The roof is painted blue.",
+        "img": "mangwon.jpg"
+    },
+    {
+        "no": 5,
+        "eng": "Which of the following descriptions of the image is incorrect?\n- (1) There are various breads placed on the display.\n- (2) Two staff members are standing behind the counter.\n- (3) One of the clerks is wearing a red cap.\n- (4) Inside the shop, a white wall and shelves are visible.",
+        "img": "mangwon_bakery.jpg"
+    },
+    {
+        "no": 6,
+        "eng": "Which of the following descriptions of the image is incorrect?\n- (1) Several men are working on construction in front of shops.\n- (2) The storefront sign has a green background and reads \"bakery cafe pomme verte\" in English.\n- (3) On the left, there is a red sign with a visible phone number.\n- (4) The clerk is wearing a yellow shirt.",
+        "img": "sangam_interior.jpg"
+    },
+    {
+        "no": 7,
+        "eng": "Which of the following descriptions of the image is incorrect?\n- (1) This space is a large cafe where people are seated at tables and talking.\n- (2) The ceiling has black track lighting arranged in narrow rows.\n- (3) There are large windows on the walls, letting in a lot of natural light.\n- (4) There is a stage for performances.",
+        "img": "seolleung_terrarosa.jpg"
+    },
+    {
+        "no": 8,
+        "eng": "Which of the following descriptions of the image is incorrect?\n- (1) There are people standing in a line in front of the bus.\n- (2) Trees are planted along the building in a row.\n- (3) Large letters are visible on the window glass outside.\n- (4) It is sunny and bright today.",
+        "img": "stanford_coffee.jpg"
+    }
+]
