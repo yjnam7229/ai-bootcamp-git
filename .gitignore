@@ -1,7 +1,4 @@
 .venv/
 *.exe
-*.csv
-*.pdf
-*.pdf
-*.pdf
+*.csv 
 *.exe
