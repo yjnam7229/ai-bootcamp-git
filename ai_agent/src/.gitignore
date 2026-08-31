@@ -4,4 +4,3 @@ env/
 venv/
 env.bak/
 venv.bak/
-echo "*.pdf" >> .gitignore
