@@ -1,0 +1,45 @@
+-----------------------------------------------------------------------------------------------------------------------------------------------
+    구분      |      정형 데이터 (Structured Data)                           |          비정형 데이터 (Unstructured Data)
+-----------------------------------------------------------------------------------------------------------------------------------------------
+대상 데이터   |   DART 재무제표 API 수집 데이터, 기업 기본정보               |     B2B 제안서 reference, 사업보고서(텍스트/PDF), 도메인 지식 문서
+저장소 (DB)   |   SQLite (data/app.db)                                       |     Chroma DB (data/chroma/)
+프레임워크    |   SQLAlchemy ORM (2.0.52)                                    |     LlamaIndex Vector Store
+데이터 구조   |   테이블, 컬럼, PK/FK 관계형 스키마                          |     Document Chunk, Embedding Vector, Metadata
+임베딩 모델   |   N/A (텍스트 원본 및 숫자형 저장)                           |     text-embedding-3-small (OpenAI)
+주요 역할     |   정밀한 수치 비교, 재무 지표 계산, 정확한 메타정보 조회     |     에이전트 RAG 기반 컨텍스트 검색, 제안서 문맥 생성 reference
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+정형 데이터 상세(data/app.db)
+    DRPT Open API에서 수집하여 결산 연도 및 기업 단위로 정문화 하는 정밀 수치 데이터
+
+    Company [기업 테이블]
+        corp_code (PK): 고유 기업 고유번호 (8자리)
+        corp_name: 기업명
+        stock_code: 상장 주식 코드 (6자리)
+
+    FinancialReport [재무제표 테이블]
+        id (PK): 시퀀스 ID
+        corp_code (FK): 연관 기업 고유번호
+        bsns_year: 사업 연도 (YYYY)
+        account_nm: 재무 항목명 (예: 매출액, 영업이익, 당기순이익 등)
+        thstrm_amount: 당기 금액 (BigInteger, 수치 연산용)
+
+비정형 데이터(data/chroma)
+    LlamaIndex 파이프 라인을 거처 텍스트 청크 및 벡터로 저장되는 RAG 지식 데이터
+        1. 문서 파싱 & 분할(Chunking)
+             Chunk Size: 512 tokens
+             Chunk Overlap: 50 tokens
+        2. 임베딩 & 벡터화
+            Embedding Model : text-embedding-3-small(1536 dimension)
+        3. 메타 데이터 매핑(Metadata Filtering 용도)    
+            corp_code : 수집 대상 기업 고유번호
+            doc_type : 문서 유형 (annual_report, proposal_template, case_study)
+            created_at: 문서 수집/등록 일자
+            
+
+
+
+
+
+
+

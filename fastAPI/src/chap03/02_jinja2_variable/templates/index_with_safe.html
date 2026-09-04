@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FastAPI & Jinja2 with Safe Filter</title>
+</head>
+<body>
+    {{my_variable_with_html | safe}} <br>
+    {{ "hello" | capitalize }} <br>
+    {{ "HELLO" | lower }} <br>
+    {{ "hello" | upper }} <br>
+    {{ "hello world" | title }} <br>
+    {{ "  hello  " | trim }} <br>
+    {{ "hello world" | replace("world", "there") }} <br>
+    {{ "hello" | length }} <br>
+    {{ my_variable | default("N/A") }} <br>
+    {{ 42.55 | round(1) }} <br>
+    {{ "42.55" | float }} <br>
+    {{ "42" | int }} <br>
+</body>
+</html>

@@ -1,0 +1,80 @@
+Uvicorn 설치
+    pip install uvicorn
+
+Uvicorn 실행(FastAPI)
+    uvicorn main:app --reload
+    http://127.0.0.1:8000
+
+자동 문서화
+    타입 힌트와 데코레이터 활용 : 코드 내의 타입 힌트(Type Hint)와 데코레이터(decorator)를 사용하여 API 문서를 자동 생성
+    라우터를 통한 문서 생성 : 예를 들어 @app.get(“/”) 라우터를 통해 해당 API 엔드포인트에 대한 문서 자동 생성
+
+    사용법
+    
+    • Swagger UI 접근
+    • http://127.0.0.1:8000/docs 주소를 통해 Swagger UI 접근 가능
+    • API 엔드포인트의 상세 정보 확인 및 테스트 수행 가능
+    • ReDoc 접근
+    • http://127.0.0.1:8000/redoc 주소를 통해 ReDoc을 통한 다른 형태의 문서 확인 가능
+
+
+Swagger UI(Docs)
+    대화형 API 테스트 가능
+    매개변수 형태 및 예시 표시
+    OAuth2 인증 테스트 지원
+    UI 커스터마이징 가능
+
+ReDoc
+    깔끔하고 직관적인 UI 제공
+    마크다운 문법 지원
+    단일 페이지 구조로 문서 전체 구조 쉽게 파악
+    대화형 테스트 불가능
+
+
+자동 문서화의 주요 용어
+• curl : 터미널(명령 프롬프트)에서 사용할 수 있는 명령 줄 도구로, 웹사이트나 API 서버와 통신할 수 있게 해줌
+• GET / Read Root : 서버로부터 정보를 조회하는데 사용되는 문서화
+• 200 : HTTP 응답 코드는 서버가 클라이언트의 요청에 어떻게 응답 했는지를 나타내는 숫자 코드로 요청이 성공적으로 완료되었음을 의미
+• application / json : 데이터가 JSON 형식으로 변환되었음을 나타내는 MIME 타입
+• Response body : 서버가 반환하는 실제 데이터 부분
+• Response headers : 서버 응답에 대한 메타데이터(정보의 정보)를 포함
+
+■ Pydantic 모델
+    데이터 검증(Data Validation)
+        • 정의 : 사용자나 다른 시스템이 보내는 데이터의 형식과 값을 확인하는 과정
+        • 목적 : 잘못된 데이터 처리 방지, 버그 및 문제 예방
+        • 예시 : 금액 입력 시 문자열 대신 숫자 사용
+    데이터 직렬화(Data Serialization)
+        • 정의 : 복잡한 데이터 구조를 바이트나 문자열로 변환하는 과정
+        • 목적 : 서로 다른 시스템 간의 데이터 교환 용이성 제공
+        • 역직렬화 : 문자열/바이트를 원래 데이터 구조로 변환    
+
+    중요성
+        FastAPI 에서는 Pydantic 모델 사용을 권장
+            - 데이터 검증과 직렬화를 통해서 API의 정확성 및 안정성 향상
+            - HTTP POST 메소드 같은 데이터 요청에 효과적
+
+
+■ Jinja2Templates
+    FastAPI의 템플릿 렌더링 기능
+    FastAPI에서는 HTML 템플릿에 데이터를 삽입하려면 Jinja2Templates 클래스의 TemplateResponse 메소드를 사용
+
+
+■ FastAPI의 정적 파일(Static Files) 관리    
+    마운트(Mount) : FastAPI에서는 특정 경로(URL)에 폴더나 다른 어플리케이션을 연결하는 작업
+
+
+■ 주요 응답 모델
+    기본 응답 모델 : Pydantic의 BaseModel을 상속하여 정의하는 가장 일반적인 형태의 응답 모델
+    Union 응답 모델
+    List 응답 모델
+
+
+■ SQLAlchemy 비동기 문법
+ 비동기적인 방식으로 SQLAlchemy를 FastAPI에서 사용하기 위해, SQLAlchemy의 비동기 지원 버전을 사용해야 함
+ 이를 위해 sqlalchemy.ext.asyncio 모듈을 활용할 것임
+ 비동기 방식은 I/O 작업이 많은 웹 어플리케이션에 응답성을 향상시키는데 유용함
+
+    데이터베이스 모델 정의(비동기 방식)
+        • aiomysql은 Python의 비동기 I/O 지원을 위한 asyncio와 MySQL 사이의 비동기적인 어댑터
+        • FastAPI 어플리테이션에서 비동기 SQLAlchemy를 사용하고, MySQL 데이터베이스와 비동기적으로 통신하기 위해 필요
