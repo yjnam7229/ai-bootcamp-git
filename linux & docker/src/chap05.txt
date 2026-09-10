@@ -1,0 +1,83 @@
+■■■■■■■■■■■■■■■ 워드프레스 사이트 구축 ■■■■■■■■■■■■■■■
+
+워드프레스와 MySQL 컨테이너 생성 및 실행
+
+1. network create 커맨드를 사용해 네트워크 생성
+$docker network create wordpress000net1
+
+네트워크 삭제
+$docker network ls
+$docker network rm wordpress000net1
+
+Exied 상태 프로세스 재실행
+  $docker start wordpress000ex12
+
+2. MySQL 컨테이너 생성 및 실행
+$docker run --name mysql000ex11 -dit \
+  --net=wordpress000net1 \
+  -e MYSQL_ROOT_PASSWORD=myrootpass \
+  -e MYSQL_DATABASE=wordpress000db \
+  -e MYSQL_USER=wordpress000kun \
+  -e MYSQL_PASSWORD=wkunpass \
+  mysql:8.0 \
+  --character-set-server=utf8mb4 \
+  --collation-server=utf8mb4_unicode_ci \
+  --default-authentication-plugin=mysql_native_password 
+   
+3. 워드프레스 컨테이너 생성 및 실행
+$docker run --name wordpress000ex12 -dit --net=wordpress000net1 \
+  -p 8085:80 \
+  -e WORDPRESS_DB_HOST=mysql000ex11 \
+  -e WORDPRESS_DB_NAME=wordpress000db \
+  -e WORDPRESS_DB_USER=wordpress000kun \
+  -e WORDPRESS_DB_PASSWORD=wkunpass \
+  wordpress
+
+확인 : http://localhost:8085
+
+4. 레드마인과 MySql 컨테이너
+   4-1 네트워크 생성
+        $docker network create redmine000net2
+
+   4-2 mysql 컨테이너 생성
+    $docker run --name mysql000ex13 -dit \
+      --net=redmine000net2 \
+      -e MYSQL_ROOT_PASSWORD=myrootpass \
+      -e MYSQL_DATABASE=redmine000db \
+      -e MYSQL_USER=redmine000kun \
+      -e MYSQL_PASSWORD=rkunpass \
+      mysql:8.0 \
+      --character-set-server=utf8mb4 \
+      --collation-server=utf8mb4_unicode_ci \
+      --default-authentication-plugin=mysql_native_password 
+  
+  4-3 redmine 컨테이너 생성
+    $docker run --name redmine000ex14 -dit --net=redmine000net2 \
+      -p 8086:3000 \
+      -e REDMINE_DB_MYSQL=mysql000ex13 \
+      -e REDMINE_DB_DATABASE=redmine000db \
+      -e REDMINE_DB_USER=redmine000kun \
+      -e REDMINE_DB_PASSWORD=rkunpass \
+      redmine
+
+      환경변수 수정
+      -e REDMINE_DB_HOST=mysql000ex13 \
+
+확인 : http://localhost:8086
+
+--------------삭제 순서-----------------
+1. mysql0000ex11 컨테이너 삭제
+  $docker stop mysql000ex11
+  $docker rm mysql000ex11
+
+2. 네트워크 삭제
+  $docker network rm wordpress000net1
+ 
+mysql image 삭제
+  $docker image ls mysql
+  $docker image rm mysql
+
+실행
+  $docker start wordpress000ex12
+
+ 

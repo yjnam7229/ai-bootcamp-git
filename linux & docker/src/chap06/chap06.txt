@@ -1,0 +1,27 @@
+■■■■■■■■■■■■■■■ 도커 컴포즈  ■■■■■■■■■■■■■■■
+
+windows 환경에서 docker 데스크탑이 설치 되어 있음
+
+$docker-compose --version
+Docker Compose version v5.5.1
+
+도커 데스크톱에는 도커 컴포즈 함께 설치 되어 있음
+우분투 리눅스에서 도커 컴포즈 설치
+sudo apt install -y python3 python3-pip
+sudo pip3 install docker -compose
+
+docker-compose.yml 실행(파일이 존재하는 디렉토리에서 실행할 때)
+$docker-compose up -d  
+
+docker-compose.yml 종료 (down : 컨테이너와 네트워크를 종료하고 삭제한다)
+$docker-compose down
+
+
+디렉토리 지정
+$docker-compose -f c:\Users\사용자명\Documents\com_folder\docker-compose.yml up -d
+
+
+
+ 
+
+ 

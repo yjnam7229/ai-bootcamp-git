@@ -1,0 +1,112 @@
+윈도우용 도커 데스크톱(WSL2)
+	- 도커는 기본적으로 리눅스용이다
+	
+
+도커 허브와 도커 이미지
+	도커 허브(https://hub.docker.com)
+		도커 레지스터리(이미지를 배포하는 사이트)
+
+WSL설치
+	제어판 - 프로그램 - 윈도우 기능 켜기/끄기 - Linux용 윈도우 하위 시스템, 가상 머신 플렛폼 체크
+	powershell 관리자 권한으로 실행  : wls --install
+	업데이트 : wsl --update
+		
+
+1. root 계정으로 강제 접속하기
+wsl -u root
+
+2. 기본 접속 계정을 root로 고정하기
+ubuntu config --default-user root  : 명령어 실행 후 wsl만 입력해도 비밀번호 입력 없이 바로 접속됩니다.
+	
+■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+1. 컨테이너, 이미지 생성 실행 (-d : 백그라운드에서 실행)
+$docker run --name apa000ex1 -d httpd 
+
+2. 컨테이너 확인 
+$docker ps  
+
+3. 컨테이너 종료
+$docker stop apa000ex1
+
+4. 컨테이너 상태 확인 시 인자 사용(-a : 히스토리 포함해서 보여줌)
+$docker ps -a  
+
+5. 컨테이너 삭제
+$docker rm apa000ex1
+
+
+■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+## 컨테이너와의 통신
+
+1. 컨테이너 생성/실행
+$docker run --name apa000ex2 -d -p 8080:80 httpd
+
+2. 컨테이너 상태 확인
+$docker ps -a
+
+3. 웹브라우저에서 확인 : http://localhost:8080/
+
+4. 컨테이너 종료
+$docker stop apa000ex2
+
+5. 컨테이너 삭제
+$docker rm apa000ex2
+
+--------------------------------------------------------------------
+## 아파치 컨테이너를 여러 개 실행하기 (독립적으로 실행)
+   하나의 이미지로 여러개의 컨테이 생성 가능
+
+$docker run --name apa000ex3 -d -p 8081:80 httpd
+$docker run --name apa000ex4 -d -p 8082:80 httpd
+$docker run --name apa000ex5 -d -p 8083:80 httpd
+
+
+## <실습> nginx 컨테이너 실행하기
+
+$docker run --name nginx000ex6 -d -p 8084:80 nginx
+$docker rm nginx000ex6
+$docker ps -a
+
+■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+<실습> MySQL 컨테이너 실행하기
+
+1. 컨테이너 생성/실행
+$docker run --name mysql000ex7 -dit -e MYSQL_ROOT_PASSWORD=myrootpass mysql
+$docker ps -a
+$docker stop mysql000ex7
+$docker rm mysql000ex7
+
+
+도커 생성 실행 옵션
+-d  백그라운드로 실행함
+-i  컨테이너와 대화형 모드로 연결함
+-t  컨테이너에 터미널 연결함
+-e  환경변수를 설정함
+
+-----------------------------------------------------------------
+## 이미지 삭제하기
+1. ps 커멘드와 인자를 사용해 컨테이너가 있는지 확인
+$docker ps -a
+
+2. 이미지 존재 확인
+$docker image ls
+
+3. 이미지 삭제
+$docker image rm httpd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
