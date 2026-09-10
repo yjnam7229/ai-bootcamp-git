@@ -5,6 +5,9 @@ from sqlalchemy import String, Integer, BigInteger, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.config import Base
 
+# corp_code	고유번호
+# stock_code 종목코드
+# corp_name	 종목명(법인명)
 class Company(Base):
     __tablename__ = "companies"
 

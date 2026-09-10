@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     # API Keys
     OPENAI_API_KEY: str
     DART_API_KEY: str
+
+    # Chroma DB 저장 경로
+    CHROMA_DB_PATH: str = str(DATA_DIR / "chroma")
     
     # Models
     DEFAULT_LLM_MODEL: str = "gpt-5-nano"
@@ -33,7 +36,7 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-settings = Settings()
+settings = Settings()   
 
 # SQLAlchemy 2.0 Engine & Session
 engine = create_engine(
