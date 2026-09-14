@@ -1,0 +1,5 @@
+npm init
+
+npm run start  엔터키
+    > chap01@1.0.0 start
+    > node index.js
