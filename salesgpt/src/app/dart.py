@@ -148,6 +148,17 @@ async def fetch_and_save_company_financials(corp_code: str, bsns_year: str, db: 
     service = DartService(db=db)
     return await service.syn_company_finacials(corp_code=corp_code, bsns_year=bsns_year)
 
+# LangGraph Agent가 사용할 도구(Tools)를 정의하는 모듈 mcp_tools.py에서 호출
+_dart_service_instance = Optional[DartService] = None
+
+def get_dart_service() -> DartService:
+    """DartService 싱글톤 인스턴스를 반환합니다."""
+    global _dart_service_instance
+    if _dart_service_instance is None:
+        _dart_service_instance = DartService()
+    return _dart_service_instance    
+
+
         
 
 

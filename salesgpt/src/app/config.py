@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     CHROMA_PERSIST_DIR: str = str(DATA_DIR / "chroma")
     CHECKPOINT_DB_PATH: str = str(DATA_DIR / "checkpoints.sqlite")
 
+    # Pydantic v2 설정: .env 파일 자동 로드
     model_config = SettingsConfigDict(
         env_file=str(BASE_DIR / ".env"),
         env_file_encoding="utf-8",
