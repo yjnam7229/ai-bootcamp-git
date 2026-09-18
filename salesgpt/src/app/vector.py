@@ -95,7 +95,7 @@ class VectorStoreService:
 
 
 # LangGraph Agent가 사용할 도구(Tools)를 정의하는 모듈 mcp_tools.py에서 호출
-_vector_service_instance = Optional[VectorStoreService] = None
+_vector_service_instance : Optional[VectorStoreService] = None
 
 def get_vector_service() -> VectorStoreService:
     """VectorStoreService 싱글톤 인스턴스를 반환합니다."""
