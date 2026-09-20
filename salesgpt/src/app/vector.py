@@ -100,7 +100,7 @@ _vector_service_instance : Optional[VectorStoreService] = None
 def get_vector_service() -> VectorStoreService:
     """VectorStoreService 싱글톤 인스턴스를 반환합니다."""
     global _vector_service_instance
-    if _vector_service_instance in None:
+    if _vector_service_instance is None:
         _vector_service_instance = VectorStoreService()
     return _vector_service_instance    
 
