@@ -8,6 +8,10 @@ from langchain_core.tools import tool
 
 from app.dart import get_dart_service
 from app.vector import get_vector_service
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
 
 @tool
 def search_company_financials(corp_code: str, bsns_year: str, reprt_code: str = '11011') -> str:
@@ -23,25 +27,39 @@ def search_company_financials(corp_code: str, bsns_year: str, reprt_code: str = 
     """
     try:
         dart_service = get_dart_service()
+
         financial_data = dart_service.fetch_financial_data(
             corp_code=corp_code,
             bsns_year=bsns_year,
             reprt_code=reprt_code
         )
 
+        print('model_tools_py financial_data len==>', len(financial_data))
+
         if not financial_data:
             return f'기업코드 {corp_code}의 {bsns_year}년도 재무 데이터를 찾을 수 없습니다.'
 
         # Agent가 읽기 쉽도록 주요 지표 가공 및 텍스트 렌더링
         lines = [f'=== 기업 {corp_code} ({bsns_year}년 보고서) 재무 정보 ===']
+
         for item in financial_data:
             account_nm = item.get('account_nm', '항목명 없음')
             thstrm_amount = item.get('thstrm_amount', '0')
-            license.append(f'- {account_nm}: {thstrm_amount}원')
-        return '\n'.join(lines)    
+            lines.append(f'- {account_nm}: {thstrm_amount}원')
+
+        # print('\n'.join(lines[1:]))
+
+        result_str = '\n'.join(lines)
+        print(f"\n\n{result_str}\n\n")
+        
+        return result_str  
 
     except Exception as e:
-        return f'DART 재무 데이터 조회 중 오류가 발생했습니다. : {str(e)}'
+        # 1. 터미널 콘솔에 상세 에러 위치(Traceback) 출력
+        logger.error(f"[mcp_tools.py:get_company_financials] 오류 발생: {e}", exc_info=True)
+        
+        # 2. 에러 반환 문구에 발생 위치(모듈명) 함께 명시
+        return f'[mcp_tools.py] DART 재무 데이터 가공 중 오류가 발생했습니다. (원인: {type(e).__name__} - {str(e)})'
 
 
 @tool
@@ -61,6 +79,7 @@ def query_proposal_knowledge_base(query: str, similarity_top_k: int = 3) -> str:
             query=query,
             similarity_top_k=similarity_top_k
         )
+        print(f'get_vector_service 결과 {results}')
 
         if not results:
             return f"질의어 '{query}'에 대한 관련 제안서 지식을 찾지 못했습니다."

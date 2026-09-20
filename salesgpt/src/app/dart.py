@@ -77,10 +77,14 @@ class DartService:
             response.raise_for_status()
             raw_json = response.json()
 
+            print('dart.py raw_json ==>', raw_json)
+
             # --------------------------------------------------
             # Step 3: Pydantic DTO 기반 응답 데이터 검증
             # --------------------------------------------------
             parsed_data = DartApiResponseSchema(**raw_json)
+
+            print('dart.py parsed_data ==>', parsed_data)
 
             if parsed_data.status != '000' or not parsed_data.list:
                 logger.warning(f"DART API 응답 메세지 [코드: {parsed_data.status}]: {parsed_data.message}")
@@ -112,6 +116,8 @@ class DartService:
             active_db.bulk_save_objects(new_records)
             active_db.commit()
             logger.info(f"[CACHE SAVE] {len(new_records)}건의 데이터를 SQLite DB에 캐싱했습니다.")
+
+            print('dart.py result_list ==>', result_list)
 
             return result_list
 

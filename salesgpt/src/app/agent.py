@@ -30,7 +30,7 @@ class AgentState(TypedDict):
 
 # 2. LLM 초기화 및 Tool 바인딩
 llm = ChatOpenAI(model="gpt-5-nano", temperature=0)
-llm_with_tools = llm.bind_tools(ALL_SALES_TOOLS)
+llm_with_tools = llm.bind_tools(ALL_SALES_TOOLS, parallel_tool_calls=False)
 
 # 3. System Prompt 정의
 SYSTEM_PROMPT = """
@@ -46,13 +46,21 @@ SYSTEM_PROMPT = """
 # 4. Agent 노드 함수 정의 
 def call_model_node(state: AgentState) -> dict:
     """LLM이 현재 상태를 판단하여 답변을 생성하거나 Tool 호출을 결정하는 노드"""
+
     messages = state["messages"]
 
-    # System Message가 없는 경우 맨 앞에 추가
+    # System Message가 없다면 LLM 입력용 리스트 맨 앞에만 임시 추가
     if not any(isinstance(m, SystemMessage) for m in messages):
-        messages = [SystemMessage(content=SYSTEM_PROMPT)] + list(messages)
+        prompt_messages = [SystemMessage(content=SYSTEM_PROMPT)] + list(messages)
+    else:
+        prompt_messages = messages
 
-    response = llm_with_tools.invoke(messages)
+    # LLM이 질문을 보고 등록된 도구 목록(ALL_SALES_TOOLS) 중 어떤 도구를 호출할지 판단하여 tool_calls를 생성
+    response = llm_with_tools.invoke(prompt_messages)
+
+    # LLM이 선택한 도구 출력
+    print('LLM이 선택한 도구  ', response.tool_calls)  
+
     return {"messages": [response]}
 
 
