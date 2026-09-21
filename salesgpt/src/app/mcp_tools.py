@@ -34,7 +34,7 @@ def search_company_financials(corp_code: str, bsns_year: str, reprt_code: str = 
             reprt_code=reprt_code
         )
 
-        print('model_tools_py financial_data len==>', len(financial_data))
+        # print('model_tools_py financial_data len==>', len(financial_data))
 
         if not financial_data:
             return f'기업코드 {corp_code}의 {bsns_year}년도 재무 데이터를 찾을 수 없습니다.'
@@ -47,10 +47,9 @@ def search_company_financials(corp_code: str, bsns_year: str, reprt_code: str = 
             thstrm_amount = item.get('thstrm_amount', '0')
             lines.append(f'- {account_nm}: {thstrm_amount}원')
 
-        # print('\n'.join(lines[1:]))
 
         result_str = '\n'.join(lines)
-        print(f"\n\n{result_str}\n\n")
+        # print(f"\n\n{result_str}\n\n")
         
         return result_str  
 
@@ -73,18 +72,24 @@ def query_proposal_knowledge_base(query: str, similarity_top_k: int = 3) -> str:
     Returns:
         str: 검색된 B2B 문맥 정보 목록    
     """
+    print('  query_proposal_knowledge_base 진입')
+    
     try:
         vector_service = get_vector_service()
+
         results = vector_service.query_knowledge_base(
-            query=query,
+            query_str=query,
             similarity_top_k=similarity_top_k
         )
+
+        print(f'저장된 문서 조각수   {vector_service.chroma_collection.count()}')
         print(f'get_vector_service 결과 {results}')
 
         if not results:
             return f"질의어 '{query}'에 대한 관련 제안서 지식을 찾지 못했습니다."
 
         formatted_context = [f"=== B2B 제안서 지식 베이스 검색 결과 ('{query}') ==="]
+
         for idx, text in enumerate(results, start=1):
             formatted_context.append(f'[{idx}] {text.strip()}\n')
 

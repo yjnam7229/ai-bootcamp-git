@@ -1,10 +1,18 @@
 # config.py
 # Pydantic Settings 기반 환경변수 & SQLAlchemy Engine/Session
-import os
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
+
+import os
+import logging
+
+# 기본 로깅 설정 (레벨을 INFO로 지정)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 
 # 프로젝트 기본 경로
 BASE_DIR = Path(__file__).resolve().parent.parent

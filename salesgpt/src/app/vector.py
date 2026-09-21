@@ -21,22 +21,40 @@ class VectorStoreService:
 
     def __init__(self, collection_name: str = 'sales_proposal_kb'):
         self.collection_name = collection_name
-        self.chroma_db_path = settings.CHROMA_DB_PATH  # 예: "data/chroma"
+        self.chroma_db_path = settings.CHROMA_DB_PATH  # 예: "data/chroma" 
+
+        # print('chroma_db_path  ', self.chroma_db_path)
 
         # 1. Chroma DB 영속성 클라이언트 초기화
         os.makedirs(self.chroma_db_path, exist_ok=True)
+
+        # 2. PersistentClient는 기존 chroma.sqlite3 파일이 존재하면 재사용함
         self.chroma_client = chromadb.PersistentClient(path=self.chroma_db_path)
         self.chroma_collection = self.chroma_client.get_or_create_collection(name=self.collection_name)
 
-        # 2. LlamaIndex 전역 설정(임베딩 모델 및 텍스트 분할기)
-        Settings.embed_model = OpenAIEmbedding(
+        # 3. DB에 저장된 데이터 건수 확인 (이미 데이터가 있으면 인덱싱 스킵)
+        existing_count = self.chroma_collection.count()
+        logger.info(f"ChromaDB 연결 완료. 현재 컬렉션 데이터 수: {existing_count}건")
+
+        # 4. DB가 완전히 비어 있는 최초 실행시에만 1회 인덱싱
+        if existing_count == 0:
+            proposal_dir = str(settings.BASE_DIR / "data" / "proposals")
+
+            print(f' proposal_dir   {proposal_dir}')
+            
+            if os.path.exists(proposal_dir):
+                logger.info("Chroma DB가 비어 있어 초기 문서 인덱싱을 1회 진행합니다...")
+                self.ingest_documents_from_directory(proposal_dir) 
+
+        # 5. LlamaIndex 전역 설정(임베딩 모델 및 텍스트 분할기)
+        Settings.embed_model = OpenAIEmbedding( 
             model=settings.EMBEDDING_MODEL,
             api_key=settings.OPENAI_API_KEY
         )
 
         Settings.node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=50)
 
-        # 3. Vector Store 및 Storage Context 바인딩
+        # 6. Vector Store 및 Storage Context 바인딩
         self.vector_store = ChromaVectorStore(chroma_collection=self.chroma_collection)
         self.storage_context = StorageContext.from_defaults(vector_store=self.vector_store)
 

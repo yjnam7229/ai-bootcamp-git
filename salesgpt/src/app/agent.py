@@ -59,7 +59,7 @@ def call_model_node(state: AgentState) -> dict:
     response = llm_with_tools.invoke(prompt_messages)
 
     # LLM이 선택한 도구 출력
-    print('LLM이 선택한 도구  ', response.tool_calls)  
+    # print('LLM이 선택한 도구  ', response.tool_calls)  
 
     return {"messages": [response]}
 
