@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     # Models
     DEFAULT_LLM_MODEL: str = "gpt-5-nano"
     EMBEDDING_MODEL: str = "text-embedding-3-small"
+
+    # Paths
+    DOCUMENTS_PATH: str = str(DATA_DIR / "proposals")
     
     # Paths & Databases
     DATABASE_URL: str = f"sqlite:///{DATA_DIR / 'app.db'}"

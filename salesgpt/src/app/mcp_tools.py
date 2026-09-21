@@ -83,7 +83,6 @@ def query_proposal_knowledge_base(query: str, similarity_top_k: int = 3) -> str:
         )
 
         print(f'저장된 문서 조각수   {vector_service.chroma_collection.count()}')
-        print(f'get_vector_service 결과 {results}')
 
         if not results:
             return f"질의어 '{query}'에 대한 관련 제안서 지식을 찾지 못했습니다."
