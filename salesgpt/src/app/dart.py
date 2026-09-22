@@ -65,7 +65,9 @@ class DartService:
             # Step 2: DB에 없을 경우 Open DART API 호출
             # --------------------------------------------------
             logger.info(f"[API CALL] DART Open API를 통해 {corp_code} ({bsns_year}년) 데이터를 수집합니다.")
-            url = f"{self.base_url}/fnlttSinglAcnt.json"
+            url = f"{self.base_url}/fnlttSinglAcntAll.json"
+            # url = f"{self.base_url}/fnlttSinglAcnt.json"
+
             params = {
                 'crtfc_key': self.api_key,
                 'corp_code': corp_code,
