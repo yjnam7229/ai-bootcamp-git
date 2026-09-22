@@ -7,9 +7,9 @@ import requests
 from typing import List, Optional
 from sqlalchemy.orm import Session
 
-from app.config import settings, SessionLocal
-from app.models import FinancialReport
-from app.schemas import DartApiResponseSchema
+from config import settings, SessionLocal
+from models import FinancialReport
+from schemas import DartApiResponseSchema
 
 logger = logging.getLogger(__name__)
 

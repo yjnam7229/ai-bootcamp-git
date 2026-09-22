@@ -10,7 +10,7 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.openai import OpenAIEmbedding
 
-from app.config import settings
+from config import settings
 
 # 로깅 설정
 logger = logging.getLogger(__name__)

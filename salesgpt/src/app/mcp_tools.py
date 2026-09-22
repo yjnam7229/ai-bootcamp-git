@@ -1,13 +1,12 @@
 # app/mcp_tools.py
-
 """
 LangGraph Agent가 사용할 도구(Tools)를 정의하는 모듈.
 비즈니스 로직(Service Layer)과 API 의존성을 분리하여 @tool 데코레이터로 래핑합니다.
 """
 from langchain_core.tools import tool
 
-from app.dart import get_dart_service
-from app.vector import get_vector_service
+from dart import get_dart_service
+from vector import get_vector_service
 import logging
 import traceback
 

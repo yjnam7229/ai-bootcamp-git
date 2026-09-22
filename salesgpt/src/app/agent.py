@@ -1,25 +1,40 @@
+# app/agent.py
 """
-app/agent.py
-------------
 LangGraph 기반의 Agent 오케스트레이션 모듈.
 사용자의 요청을 받아 mcp_tools를 호출할지, 답변을 생성할지 결정하는 상태 머신을 구축합니다.
 """
+import os
+import sqlite3
+import logging
+from typing import Annotated, Sequence, TypedDict, Optional
 
-from typing import Annotated, Sequence, TypedDict
 from dotenv import load_dotenv
 from langchain_core.messages import BaseMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
+from langgraph.checkpoint.sqlite import SqliteSaver
 
-from app.mcp_tools import ALL_SALES_TOOLS
+from mcp_tools import ALL_SALES_TOOLS
+from config import settings
+
+# 로깅 설정
+logger = logging.getLogger(__name__)
 
 # 환경 변수 로드
 load_dotenv()
 
+# 1. DB 저장 디렉토리 및 SQLite DB 연결 설정
+checkpointer_path = str(settings.CHECKPOINT_DB_PATH)
+# 파일이 아닌 '상위 디렉토리'를 생성해야 함
+os.makedirs(os.path.dirname(checkpointer_path), exist_ok=True)
 
-# 1. Agent의 상태(state) 스키마 정의
+conn = sqlite3.connect(checkpointer_path, check_same_thread=False)
+checkpointer = SqliteSaver(conn)
+
+
+# 2. Agent의 상태(state) 스키마 정의
 class AgentState(TypedDict):
     """
     messages: 대화 기록 및 Tool 호출 메세지 목록
@@ -28,11 +43,11 @@ class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
 
 
-# 2. LLM 초기화 및 Tool 바인딩
+# 3. LLM 초기화 및 Tool 바인딩
 llm = ChatOpenAI(model="gpt-5-nano", temperature=0)
 llm_with_tools = llm.bind_tools(ALL_SALES_TOOLS, parallel_tool_calls=False)
 
-# 3. System Prompt 정의
+# 4. System Prompt 정의
 SYSTEM_PROMPT = """
 당신은 B2B 영업 제안서 작성을 지원하는 전문 에이전트 'SalesGPT'입니다.
 제공된 도구(DART 재무 정보 조회, B2B 제안서 지식 베이스 검색)를 적극적으로 활용하여 정확하고 전문적인 제안서 문맥을 구성하세요.
@@ -42,11 +57,9 @@ SYSTEM_PROMPT = """
 - 답변은 전문적이고 명확한 B2B 비즈니스 톤을 유지하세요.
 """
 
-
-# 4. Agent 노드 함수 정의 
+# 5. Agent 노드 함수 정의 
 def call_model_node(state: AgentState) -> dict:
     """LLM이 현재 상태를 판단하여 답변을 생성하거나 Tool 호출을 결정하는 노드"""
-
     messages = state["messages"]
 
     # System Message가 없다면 LLM 입력용 리스트 맨 앞에만 임시 추가
@@ -55,51 +68,68 @@ def call_model_node(state: AgentState) -> dict:
     else:
         prompt_messages = messages
 
-    # LLM이 질문을 보고 등록된 도구 목록(ALL_SALES_TOOLS) 중 어떤 도구를 호출할지 판단하여 tool_calls를 생성
     response = llm_with_tools.invoke(prompt_messages)
-
-    # LLM이 선택한 도구 출력
-    # print('LLM이 선택한 도구  ', response.tool_calls)  
-
     return {"messages": [response]}
 
 
-# 5. 조건부 분기 logic
+# 6. 조건부 분기 logic
 def should_continue(state: AgentState) -> str:
     """LLM의 마지막 응답에 tool_calls가 포함되어 있는지 판단하는 조건부 에지(Edge)"""
     last_message = state["messages"][-1]
 
-    # Tool 호출 요청이 있는 경우 'tools' 노드 이름 직접 반환
     if hasattr(last_message, "tool_calls") and last_message.tool_calls:
         return "tools"
-    # Tool 호출이 없으면 종료
     return END
 
 
-# 6. LangGraph 상태 머신 그래프 구성
+# 7. LangGraph 상태 머신 그래프 구성
 def create_sales_agent_graph():
     """LangGraph 워크플로우를 생성하고 컴파일합니다."""
     workflow = StateGraph(AgentState)
 
-    # 1. 노드 추가
     workflow.add_node("agent", call_model_node)
     workflow.add_node("tools", ToolNode(ALL_SALES_TOOLS))
 
-    # 2. 에지 연결
     workflow.add_edge(START, "agent")
-
-    # 조건부 에지 (should_continue 반환값인 'tools' 또는 END로 직접 이동)
-    workflow.add_conditional_edges(
-        "agent",
-        should_continue
-    )
-
-    # 3. 도구 실행 후 다시 agent 노드로 순환
+    workflow.add_conditional_edges("agent", should_continue)
     workflow.add_edge("tools", "agent")
 
-    # 4. 컴파일 후 전달
-    return workflow.compile()
+    # SqliteSaver를 체크포인터로 등록
+    return workflow.compile(checkpointer=checkpointer)
 
 
 # 외부에서 호출 가능한 인스턴스 생성
 sales_agent = create_sales_agent_graph()
+
+
+# 8. main.py(Streamlit UI) 전용 실행 진입점 함수
+def run_sales_agent(
+    company_name: str, 
+    stock_code: str, 
+    additional_requirements: Optional[str] = None,
+    thread_id: str = "session_001"
+) -> str:
+    """
+    main.py에서 직접 호출하는 함수입니다.
+    SqliteSaver 체크포인터가 지정되어 있으므로 thread_id별로 세션 상태가 보존됩니다.
+    """
+    logger.info(f"[{company_name}] SalesGPT 에이전트 실행 (Thread ID: {thread_id})")
+
+    user_prompt = (
+        f"기업명: {company_name}\n"
+        f"종목코드/고유번호: {stock_code}\n"
+        f"추가 요구사항: {additional_requirements or '없음'}\n\n"
+        f"위 정보를 바탕으로 DART 재무 데이터를 조회하고 ChromaDB RAG 지식을 활용하여 "
+        f"맞춤형 B2B 클라우드 전환 제안서를 작성해 주세요."
+    )
+
+    initial_state = {"messages": [("user", user_prompt)]}
+    config = {"configurable": {"thread_id": thread_id}}
+
+    try:
+        final_state = sales_agent.invoke(initial_state, config=config)
+        last_message = final_state["messages"][-1]
+        return getattr(last_message, "content", str(last_message))
+    except Exception as e:
+        logger.error(f"에이전트 실행 중 오류 발생: {e}", exc_info=True)
+        raise e
