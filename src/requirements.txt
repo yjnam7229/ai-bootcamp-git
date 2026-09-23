@@ -1,0 +1,28 @@
+# SalesGPT runtime dependencies for macOS (Apple Silicon and Intel)
+#
+# This list contains direct application dependencies only. Do not freeze the
+# current virtual environment here: its transitive dependencies differ by OS
+# and Python version. In particular, pywin32 is Windows-only.
+
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+
+langgraph>=0.2,<2
+langchain-openai>=0.2,<2
+
+chromadb>=0.5,<2
+llama-index-core>=0.11,<1
+llama-index-vector-stores-chroma>=0.3,<1
+llama-index-embeddings-openai>=0.2,<1
+llama-index-readers-file>=0.4,<1
+docx2txt>=0.8,<1
+python-docx>=1.1,<2
+pymupdf>=1.23.21,<2
+
+pydantic-settings>=2.0,<3
+SQLAlchemy>=2.0,<3
+asyncmy>=0.2,<1
+httpx>=0.27,<1
+python-dotenv>=1.0,<2
+requests>=2.31,<3
+pymysql>=1.1,<2

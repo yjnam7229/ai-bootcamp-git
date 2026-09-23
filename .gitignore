@@ -1,0 +1,13 @@
+.env
+.DS_Store
+:memory:.ses
+.venv
+env/
+venv/
+env.bak/
+venv.bak/
+**/__pycache__/
+**/.claude/
+**/graphify-out/
+**/app.db
+.env
