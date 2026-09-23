@@ -11,3 +11,4 @@ venv.bak/
 **/graphify-out/
 **/app.db
 .env
+.serena/
