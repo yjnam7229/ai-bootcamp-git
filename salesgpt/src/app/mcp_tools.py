@@ -1,106 +1,85 @@
 # app/mcp_tools.py
+
 """
 LangGraph Agent가 사용할 도구(Tools)를 정의하는 모듈.
 비즈니스 로직(Service Layer)과 API 의존성을 분리하여 @tool 데코레이터로 래핑합니다.
 """
-from langchain_core.tools import tool
+# 실제 MCP 클라이언트(Streamlit 에이전트와 외부 MCP 호스트)가 함께 사용하는 도구 서버.
+import json as _json
+from pathlib import Path as _Path
 
-from dart import get_dart_service
-from vector import get_vector_service
-import logging
-import traceback
+from dotenv import load_dotenv as _load_dotenv
+from mcp.server.fastmcp import FastMCP
 
-logger = logging.getLogger(__name__)
+_PROJECT_ROOT = _Path(__file__).resolve().parents[2]
+_load_dotenv(_PROJECT_ROOT / ".env")
 
-@tool
-def search_company_financials(corp_code: str, bsns_year: str, reprt_code: str = '11011') -> str:
-    """DART API를 통해 특정 기업의 재무제표(재무상태표, 손익계산서 등) 데이터를 조회합니다.
+from app.callImportant import (
+    OpenDartImportantClient,
+    get_company_financial_data as _fetch_company_financial_data,
+)
+from app.pdf_report import generate_financial_report_pdf
 
-    Args:
-        corp_code (str) : 고유번호 8자리 (예: '00126380')
-        bsns_year (str): 사업연도 4자리 (예: '2023')
-        reprt_code (str): 보고서 코드 (11011: 사업보고서, 11012: 반기, 11013: 1분기, 11014: 3분기). 기본값 '11011'
+mcp = FastMCP("opendart-financial-assistant", json_response=True)
 
-    Returns:
-        str: 재무 데이터 조회 결과 요약 또는 에러 메시지            
+
+@mcp.tool()
+async def get_company_financial_data(
+    company_name: str,
+    history_count: int = 1,
+    fs_div: str = "CFS",
+) -> str:
+    """회사명으로 OpenDART 최신 재무자료를 조회하고 원본 및 정규화 값을 반환한다.
+
+    company_name은 CorpCode DB에서 검색할 회사명이다. corp_code는 입력하지 않는다.
+    history_count는 가져올 최신 정기보고서 수이며, fs_div는 연결 CFS 또는 별도 OFS다.
     """
-    try:
-        dart_service = get_dart_service()
-
-        financial_data = dart_service.fetch_financial_data(
-            corp_code=corp_code,
-            bsns_year=bsns_year,
-            reprt_code=reprt_code
-        )
-
-        # print('model_tools_py financial_data len==>', len(financial_data))
-
-        if not financial_data:
-            return f'기업코드 {corp_code}의 {bsns_year}년도 재무 데이터를 찾을 수 없습니다.'
-
-        # Agent가 읽기 쉽도록 주요 지표 가공 및 텍스트 렌더링
-        lines = [f'=== 기업 {corp_code} ({bsns_year}년 보고서) 재무 정보 ===']
-
-        for item in financial_data:
-            account_nm = item.get('account_nm', '항목명 없음')
-            thstrm_amount = item.get('thstrm_amount', '0')
-            lines.append(f'- {account_nm}: {thstrm_amount}원')
+    if history_count < 1:
+        raise ValueError("history_count는 1 이상이어야 합니다.")
+    if fs_div not in {"CFS", "OFS"}:
+        raise ValueError("fs_div는 CFS 또는 OFS여야 합니다.")
+    result = await _fetch_company_financial_data(
+        company_name=company_name,
+        history_count=history_count,
+        fs_div=fs_div,
+    )
+    return _json.dumps(result, ensure_ascii=False, default=str)
 
 
-        result_str = '\n'.join(lines)
-        # print(f"\n\n{result_str}\n\n")
-        
-        return result_str  
-
-    except Exception as e:
-        # 1. 터미널 콘솔에 상세 에러 위치(Traceback) 출력
-        logger.error(f"[mcp_tools.py:get_company_financials] 오류 발생: {e}", exc_info=True)
-        
-        # 2. 에러 반환 문구에 발생 위치(모듈명) 함께 명시
-        return f'[mcp_tools.py] DART 재무 데이터 가공 중 오류가 발생했습니다. (원인: {type(e).__name__} - {str(e)})'
+@mcp.tool()
+async def call_important_api(endpoint: str, params: dict[str, str] | None = None) -> str:
+    """callImportant.py의 OpenDART JSON API 호출 함수를 MCP 도구로 제공한다."""
+    async with OpenDartImportantClient() as client:
+        result = await client.call_json_api(endpoint, params)
+    return _json.dumps(result, ensure_ascii=False, default=str)
 
 
-@tool
-def query_proposal_knowledge_base(query: str, similarity_top_k: int = 3) -> str:
-    """LlamaIndex 기반 Vector DB(Chroma)에서 B2B 제안서 작성에 필요한 유사 지식 및 템플릿 문맥을 검색합니다.
-    
-    Args: 
-        query (str): 검색할 질의어 (예: 'cloud 인프라 구축 제안서 보안 요건)
-        similarity_top_k (int): 반환할 상위 문서 조각(Chunk) 개수, 기본값 3
+@mcp.tool()
+def create_financial_report_pdf(
+    company_name: str,
+    report_period: str,
+    executive_summary: str,
+    financial_analysis: str,
+    key_metrics: str,
+    caveats: str,
+    sources: str,
+) -> str:
+    """대화에서 정리한 기업 재무 요약을 지표 카드가 포함된 한국어 PDF로 저장한다.
 
-    Returns:
-        str: 검색된 B2B 문맥 정보 목록    
+    성공하면 Streamlit 화면이 다운로드 버튼을 연결할 PDF_READY 토큰을 반환한다.
+    key_metrics는 지표마다 한 줄로 작성하고, 가능하면
+    ``지표명 | 현재값과 단위 | 비교값과 비교 기간`` 형식을 사용한다.
     """
-    print('  query_proposal_knowledge_base 진입')
-    
-    try:
-        vector_service = get_vector_service()
-
-        results = vector_service.query_knowledge_base(
-            query_str=query,
-            similarity_top_k=similarity_top_k
-        )
-
-        print(f'저장된 문서 조각수   {vector_service.chroma_collection.count()}')
-
-        if not results:
-            return f"질의어 '{query}'에 대한 관련 제안서 지식을 찾지 못했습니다."
-
-        formatted_context = [f"=== B2B 제안서 지식 베이스 검색 결과 ('{query}') ==="]
-
-        for idx, text in enumerate(results, start=1):
-            formatted_context.append(f'[{idx}] {text.strip()}\n')
-
-        return '\n'.join(formatted_context)
-
-    except Exception as e:
-        return f"지식 베이스(RAG) 검색 중 오류가 발생했습니다: {str(e)}"
-
-# Agent 노드 생성을 위한 도구 목록 바인딩 Export
-ALL_SALES_TOOLS =[
-    search_company_financials,
-    query_proposal_knowledge_base
-] 
+    result = generate_financial_report_pdf(
+        company_name=company_name,
+        report_period=report_period,
+        executive_summary=executive_summary,
+        financial_analysis=financial_analysis,
+        key_metrics=key_metrics,
+        caveats=caveats,
+        sources=sources,
+    )
+    return result["download_token"]
 
 
- 
+ALL_FINANCIAL_TOOLS = [get_company_financial_data, call_important_api, create_financial_report_pdf]

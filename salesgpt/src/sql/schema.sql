@@ -20,5 +20,5 @@ CREATE TABLE IF NOT EXISTS financial_reports (
 );
 
 -- 인덱스 생성 (조회 성능 최적화)
-CREATE INDEX IF NOT EXISTS idx_financial_reports_corp_year 
+CREATE INDEX IF NOT EXISTS idx_financial_reports_corp_year
 ON financial_reports (corp_code, bsns_year);
