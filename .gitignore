@@ -1,0 +1,4 @@
+.venv/
+*.exe
+*.csv 
+*.exe
