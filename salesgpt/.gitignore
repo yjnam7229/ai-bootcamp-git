@@ -14,3 +14,5 @@ venv.bak/
 .serena/
 doc/**
 **/data/reports/**.pdf
+**.pptx
+**/.pytest_cache/
