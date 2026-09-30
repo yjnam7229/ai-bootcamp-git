@@ -22,8 +22,7 @@ load_dotenv(_PROJECT_ROOT / ".env")
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
-# from app.prompts import build_financial_system_prompt
-from app.compressed_prompts import build_financial_system_prompt
+from app.prompts import build_financial_system_prompt
 
 
 class AgentState(TypedDict):
@@ -75,8 +74,18 @@ def _compile_agent(system_prompt: str, tools: Sequence[object]):
 
 
 async def create_financial_agent_graph(understanding_level: str):
-    """stdio MCP 서버에서 도구를 읽어 이해 수준별 재무 상담 그래프를 만든다."""
-    system_prompt = build_financial_system_prompt(understanding_level)
+    """OpenDART와 Slack MCP 도구를 읽어 이해 수준별 재무 상담 그래프를 만든다."""
+    slack_token = os.getenv("SLACK_USER_TOKEN")
+    slack_channel_id = os.getenv("SLACK_CHANNEL_ID")
+    if not slack_token:
+        raise RuntimeError("SLACK_USER_TOKEN이 없습니다. .env 파일을 확인해주세요.")
+    if not slack_channel_id:
+        raise RuntimeError("SLACK_CHANNEL_ID가 없습니다. .env 파일을 확인해주세요.")
+
+    system_prompt = build_financial_system_prompt(
+        understanding_level,
+        slack_channel_id=slack_channel_id,
+    )
     minimal_env = {
         "PATH": os.environ.get("PATH", ""),
         "PYTHONPATH": str(_SRC_DIR),
@@ -90,10 +99,30 @@ async def create_financial_agent_graph(understanding_level: str):
                 "args": ["-m", "app.mcp_server"],
                 "cwd": str(_SRC_DIR),
                 "env": minimal_env,
-            }
+            },
+            # Slack 공식 MCP 서버를 연결한다.
+            "slack": {
+                "transport": "streamable_http",
+                "url": "https://mcp.slack.com/mcp",
+                "headers": {
+                    "Authorization": f"Bearer {slack_token}",
+                },
+            },
         }
     )
-    tools = await mcp_client.get_tools()
-    if not tools:
+
+    dart_tools = await mcp_client.get_tools(server_name="opendart_financial")
+    if not dart_tools:
         raise RuntimeError("재무 MCP 서버에서 사용 가능한 도구를 찾지 못했습니다.")
+
+    # Slack은 메시지 즉시 전송 도구만 사용한다.
+    slack_tools = await mcp_client.get_tools(server_name="slack")
+    slack_send_tools = [
+        tool for tool in slack_tools
+        if tool.name == "slack_send_message"
+    ]
+    if not slack_send_tools:
+        raise RuntimeError("Slack MCP에서 slack_send_message 도구를 찾지 못했습니다.")
+
+    tools = [*dart_tools, *slack_send_tools]
     return _compile_agent(system_prompt, tools)

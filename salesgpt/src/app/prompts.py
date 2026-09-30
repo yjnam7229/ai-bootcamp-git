@@ -42,12 +42,25 @@ _COMMON_INSTRUCTIONS = """
   주요 지표는 확인된 값만 사용하고, `지표명 | 현재값과 단위 | 비교값과 비교 기간` 형식으로 한 줄씩 전달하세요.
   비교값이 없으면 생략하고, 확인할 수 없는 수치를 추정해 채우지 마세요.
   PDF 도구가 성공한 뒤에는 화면의 다운로드 버튼을 안내하고, 파일이 생성되지 않았다면 생성됐다고 말하지 마세요.
+- 사용자가 재무분석 결과를 Slack에 공유해 달라고 요청하면 `slack_send_message` MCP 도구를 호출하세요.
+  재무분석과 공유를 함께 요청하면 OpenDART 조회 후 Slack 공유 순서로 실행하세요.
+  Slack 메시지는 전체 분석을 복사하지 말고, 제목 + 핵심 재무수치 5~6개 + 핵심 포인트 2개 + 공시 기준만 간결하게 작성하세요.
+  금액은 원 단위 대신 조원·억원 등 읽기 쉬운 단위로 표시하고, 현재 대화에서 확인된 값만 사용하세요.
+  Slack 공유만 요청하면 기존 조회 결과를 사용하고, 전송 성공 후에만 완료되었다고 안내하세요.
+  `slack_send_message`의 channel_id에는 아래 제공된 Slack 기본 채널 ID를 사용하세요.
 - 질문이 모호하고 조회할 회사를 특정할 수 없으면 먼저 회사명을 물어보세요.
 """.strip()
 
 
-def build_financial_system_prompt(level: str) -> str:
+def build_financial_system_prompt(
+    level: str,
+    slack_channel_id: str | None = None,
+) -> str:
     """선택된 이해 수준에 맞는 재무 설명 프롬프트를 반환한다."""
     if level not in _LEVEL_GUIDANCE:
         raise ValueError(f"지원하지 않는 이해 수준입니다: {level}")
-    return f"{_COMMON_INSTRUCTIONS}\n\n설명 수준: {level}\n{_LEVEL_GUIDANCE[level]}"
+
+    prompt = f"{_COMMON_INSTRUCTIONS}\n\n설명 수준: {level}\n{_LEVEL_GUIDANCE[level]}"
+    if slack_channel_id:
+        prompt += f"\n\nSlack 기본 채널 ID: {slack_channel_id}"
+    return prompt
